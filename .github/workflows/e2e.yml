@@ -1,0 +1,77 @@
+name: E2E
+
+# Phase 1: API gate -> smoke in 4 markets (parallel). Phase 2 (Day 4) adds Testiny, Pages, email and the e2e-gate job.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TEST_ENV: ci
+  RUN_ID: ${{ github.run_id }}
+
+defaults:
+  run:
+    working-directory: e2e
+
+jobs:
+  api:
+    name: api-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            e2e/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - name: Start ProcureLab
+        run: bash scripts/start-app.sh
+      - run: npx playwright test --project=api
+
+  smoke:
+    name: smoke-${{ matrix.market }}
+    needs: api
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        market: [NL, BE, DK, DE]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            e2e/package-lock.json
+      - run: npm ci
+      - name: Start ProcureLab
+        run: bash scripts/start-app.sh
+      - run: npx playwright install --with-deps chromium
+      - name: Smoke ${{ matrix.market }}
+        run: npx playwright test --project=smoke-${{ matrix.market }}
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: report-smoke-${{ matrix.market }}
+          path: e2e/reports/html
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: app-log-${{ matrix.market }}
+          path: e2e/app.log
