@@ -1,0 +1,8 @@
+node_modules
+reports
+test-results
+playwright-report
+blob-report
+all-blob-reports
+.auth
+package-lock.json

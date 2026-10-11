@@ -1,0 +1,21 @@
+{
+  "name": "procurelab",
+  "version": "1.0.0",
+  "description": "ProcureLab - multi-market vendor management and RFP platform (buyer, vendor and admin roles) used as the system under test for an agentic test automation platform demo.",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "start:env": "node --env-file=.env server.js",
+    "dev": "node --watch server.js",
+    "reset-data": "node scripts/reset-data.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cookie-session": "^2.1.0",
+    "express": "^4.21.2",
+    "multer": "^2.0.2"
+  }
+}

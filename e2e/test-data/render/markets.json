@@ -1,0 +1,43 @@
+{
+  "accounts": {
+    "admin": "admin@procurelab.test",
+    "buyer": "buyer@procurelab.test",
+    "locked": "locked@procurelab.test",
+    "vendor": {
+      "NL": "vendor.nl@procurelab.test",
+      "BE": "vendor.be@procurelab.test",
+      "DK": "vendor.dk@procurelab.test",
+      "DE": "vendor.de@procurelab.test"
+    }
+  },
+  "seeded": {
+    "NL": {
+      "project": "Cloud Migration 2027",
+      "rfpWithProposals": "Cloud Migration RFP",
+      "vendorCompany": "CloudTech Solutions",
+      "vendorOpenRfp": "Security Assessment RFP",
+      "securityVendor": "NextGen IT"
+    },
+    "BE": {
+      "project": "ERP Hosting Renewal",
+      "rfpWithProposals": "ERP Hosting RFP",
+      "vendorCompany": "Flanders Data Group",
+      "vendorOpenRfp": "ERP Hosting RFP",
+      "securityVendor": "Brabant Secure"
+    },
+    "DK": {
+      "project": "Datacenter Exit 2027",
+      "rfpWithProposals": "Datacenter Exit RFP",
+      "vendorCompany": "Øresund Data ApS",
+      "vendorOpenRfp": "Datacenter Exit RFP",
+      "securityVendor": "Fyn Secure ApS"
+    },
+    "DE": {
+      "project": "Zero Trust Rollout",
+      "rfpWithProposals": "Zero Trust RFP",
+      "vendorCompany": "Hanse Cloud GmbH",
+      "vendorOpenRfp": "Zero Trust RFP",
+      "securityVendor": "Isar Security GmbH"
+    }
+  }
+}

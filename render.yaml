@@ -1,0 +1,31 @@
+# Render Blueprint: in the Render dashboard choose New > Blueprint and pick this repo.
+services:
+  - type: web
+    name: procurelab
+    runtime: node
+    plan: free            # free: data resets on every restart/deploy. See the disk option below.
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: TEST_API_TOKEN
+        sync: false       # prompted; reuse the same value as a GitHub Actions secret
+      - key: DEMO_PASSWORD
+        sync: false
+      - key: DEFAULT_MARKET
+        value: NL
+      - key: ANTHROPIC_API_KEY
+        sync: false       # optional
+    # To keep data across restarts, switch to a paid plan and uncomment:
+    # disk:
+    #   name: procurelab-data
+    #   mountPath: /var/data
+    #   sizeGB: 1
+    # and add an env var DATA_DIR=/var/data
