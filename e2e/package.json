@@ -11,7 +11,6 @@
     "typecheck": "tsc --noEmit",
     "report": "playwright show-report reports/html",
     "testiny:upload": "tsx utils/testiny/upload-results.ts",
-    "notify:email": "tsx utils/notify/send-email.ts",
     "summary": "tsx utils/reporting/summary.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
