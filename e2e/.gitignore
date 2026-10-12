@@ -7,5 +7,5 @@ blob-report/
 playwright-report/
 .playwright-cli/
 all-blob-reports/
-app.log.DS_Store
+app.log
 .DS_Store

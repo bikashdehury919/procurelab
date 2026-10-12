@@ -19,13 +19,13 @@ export default tseslint.config(
     ...playwright.configs['flat/recommended'],
     rules: {
       ...playwright.configs['flat/recommended'].rules,
-      'playwright/no-focused-test': 'error',         // test.only must never reach CI
-      'playwright/no-wait-for-timeout': 'error',     // no sleeps
-      'playwright/no-wait-for-selector': 'error',    // use web-first assertions instead
-      'playwright/no-skipped-test': 'warn',          // skips need a reason / ticket
+      'playwright/no-focused-test': 'error', // test.only must never reach CI
+      'playwright/no-wait-for-timeout': 'error', // no sleeps
+      'playwright/no-wait-for-selector': 'error', // use web-first assertions instead
+      'playwright/no-skipped-test': 'warn', // skips need a reason / ticket
       'playwright/missing-playwright-await': 'error',
       'playwright/expect-expect': ['error', { assertFunctionNames: [] }],
-      'playwright/prefer-locator': 'off',            // our page objects already wrap locators (false positives on .fill())
+      'playwright/prefer-locator': 'off', // our page objects already wrap locators (false positives on .fill())
     },
   },
 );

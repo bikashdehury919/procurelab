@@ -25,6 +25,7 @@
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
     "@playwright/test": "^1.64.0",
+    "@testiny/cli": "^1.41.0",
     "@types/node": "^26.6.5",
     "dotenv": "^18.0.7",
     "eslint": "^10.12.0",

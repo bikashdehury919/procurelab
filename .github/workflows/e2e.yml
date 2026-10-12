@@ -1,18 +1,26 @@
 name: E2E
 
-# Phase 1: API gate -> smoke in 4 markets (parallel). Phase 2 (Day 4) adds Testiny, Pages, email and the e2e-gate job.
+# Runs on every pull request and on main: API gate -> smoke in 4 markets (parallel) -> e2e-gate.
 on:
   pull_request:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      test_env:
+        description: ci = start the app in the runner; render = test the deployed site
+        type: choice
+        options: [ci, render]
+        default: ci
 
 concurrency:
   group: e2e-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  TEST_ENV: ci
+  TEST_ENV: ${{ inputs.test_env || 'ci' }}
+  TEST_API_TOKEN: ${{ secrets.TEST_API_TOKEN }} # only needed for render; ci uses the app's local token
+  DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
   RUN_ID: ${{ github.run_id }}
 
 defaults:
@@ -24,6 +32,7 @@ jobs:
     name: api-gate
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env: { BLOB_NAME: api }
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -37,8 +46,12 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - name: Start ProcureLab
+        if: env.TEST_ENV == 'ci'
         run: bash scripts/start-app.sh
       - run: npx playwright test --project=api
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with: { name: blob-api, path: e2e/reports/blob, retention-days: 7 }
 
   smoke:
     name: smoke-${{ matrix.market }}
@@ -49,6 +62,7 @@ jobs:
       fail-fast: false
       matrix:
         market: [NL, BE, DK, DE]
+    env: { BLOB_NAME: 'smoke-${{ matrix.market }}' }
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -60,18 +74,55 @@ jobs:
             e2e/package-lock.json
       - run: npm ci
       - name: Start ProcureLab
+        if: env.TEST_ENV == 'ci'
         run: bash scripts/start-app.sh
       - run: npx playwright install --with-deps chromium
       - name: Smoke ${{ matrix.market }}
         run: npx playwright test --project=smoke-${{ matrix.market }}
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
-        with:
-          name: report-smoke-${{ matrix.market }}
-          path: e2e/reports/html
-          retention-days: 7
+        with: { name: 'blob-smoke-${{ matrix.market }}', path: e2e/reports/blob, retention-days: 7 }
       - uses: actions/upload-artifact@v4
-        if: ${{ failure() }}
+        if: ${{ failure() && env.TEST_ENV == 'ci' }}
+        with: { name: 'app-log-${{ matrix.market }}', path: e2e/app.log }
+
+  report:
+    # Required status check on main ("e2e-gate"): fails when any test failed.
+    name: e2e-gate
+    if: ${{ !cancelled() }}
+    needs: [api, smoke]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # publish the HTML report to the gh-pages branch
+    env:
+      REPORT_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/e2e/${{ github.run_id }}/
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: 22, cache: npm, cache-dependency-path: e2e/package-lock.json }
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with: { path: e2e/all-blob-reports, pattern: blob-*, merge-multiple: true }
+      - name: Merge reports (api + 4 markets)
+        run: npx playwright merge-reports --config merge.config.ts ./all-blob-reports
+      - name: Job summary
+        run: npx tsx utils/reporting/summary.ts --suite smoke --report-url "$REPORT_URL"
+      - name: Upload results to Testiny
+        run: npx tsx utils/testiny/upload-results.ts --suite smoke
+        env:
+          TESTINY_API_KEY: ${{ secrets.TESTINY_API_KEY }}
+          TESTINY_PROJECT: ${{ vars.TESTINY_PROJECT }}
+      - name: Publish HTML report
+        if: github.event_name != 'pull_request'
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          name: app-log-${{ matrix.market }}
-          path: e2e/app.log
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: e2e/reports/html
+          destination_dir: e2e/${{ github.run_id }}
+          keep_files: true
+      - uses: actions/upload-artifact@v4
+        with: { name: html-report-smoke, path: e2e/reports/html, retention-days: 14 }
+      - name: Gate
+        run: |
+          node -e "const s=require('./reports/summary.json'); if (s.totals.failed) { console.error(s.totals.failed + ' test(s) failed'); process.exit(1) }"
