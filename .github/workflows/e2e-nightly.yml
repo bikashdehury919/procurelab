@@ -1,0 +1,77 @@
+name: E2E nightly regression
+
+on:
+  schedule:
+    - cron: '0 2 * * 1-5' # 02:00 UTC, Monday-Friday
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-nightly
+  cancel-in-progress: false
+
+env:
+  TEST_ENV: ci
+  RUN_ID: ${{ github.run_id }}
+
+defaults:
+  run:
+    working-directory: e2e
+
+jobs:
+  regression:
+    name: regression-${{ matrix.shard }}/4
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    env: { BLOB_NAME: 'regression-${{ matrix.shard }}' }
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            e2e/package-lock.json
+      - run: npm ci
+      - run: bash scripts/start-app.sh
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test --project=regression --shard=${{ matrix.shard }}/4
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with: { name: 'blob-regression-${{ matrix.shard }}', path: e2e/reports/blob, retention-days: 7 }
+
+  report:
+    name: regression-report
+    if: ${{ !cancelled() }}
+    needs: regression
+    runs-on: ubuntu-latest
+    permissions: { contents: write }
+    env:
+      REPORT_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/regression/${{ github.run_id }}/
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: 22, cache: npm, cache-dependency-path: e2e/package-lock.json }
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with: { path: e2e/all-blob-reports, pattern: blob-*, merge-multiple: true }
+      - run: npx playwright merge-reports --config merge.config.ts ./all-blob-reports
+      - run: npx tsx utils/reporting/summary.ts --suite regression --report-url "$REPORT_URL"
+      - name: Upload results to Testiny
+        run: npx tsx utils/testiny/upload-results.ts --suite regression
+        env:
+          TESTINY_API_KEY: ${{ secrets.TESTINY_API_KEY }}
+          TESTINY_PROJECT: ${{ vars.TESTINY_PROJECT }}
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: e2e/reports/html
+          destination_dir: regression/${{ github.run_id }}
+          keep_files: true
+      - name: Gate
+        run: |
+          node -e "process.exit(require('./reports/summary.json').totals.failed ? 1 : 0)"

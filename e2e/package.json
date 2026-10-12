@@ -11,7 +11,6 @@
     "typecheck": "tsc --noEmit",
     "report": "playwright show-report reports/html",
     "testiny:upload": "tsx utils/testiny/upload-results.ts",
-    "notify:email": "tsx utils/notify/send-email.ts",
     "summary": "tsx utils/reporting/summary.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -25,6 +24,7 @@
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
     "@playwright/test": "^1.64.0",
+    "@testiny/cli": "^1.41.0",
     "@types/node": "^26.6.5",
     "dotenv": "^18.0.7",
     "eslint": "^10.12.0",
