@@ -10,7 +10,8 @@
 App (repo root):   npm start | npm run reset-data
 Tests (cd e2e):    npm run typecheck | npx playwright test --project=api | npx playwright test --project=smoke-DK
                    npm run test:smoke | npm run test:regression | npx playwright test -g "REG-RFP" --repeat-each=3
-Explore the UI:    playwright-cli open http://localhost:3000/login ; playwright-cli snapshot
+Explore the UI:    Playwright CLI is installed locally in e2e/: always run it from e2e/ with npx, e.g.
+                   cd e2e && npx playwright-cli open http://localhost:3000/login ; npx playwright-cli snapshot
 
 ## Rules for app changes (developers and agents)
 1. Every new interactive or asserted element gets a data-testid (kebab-case).
@@ -43,3 +44,4 @@ Explore the UI:    playwright-cli open http://localhost:3000/login ; playwright-
 11. Locators listed in e2e/src/locators/hub.ts are found with this.hub.find(<key>) in page objects.
     A broken hub locator is fixed in hub.ts (skill heal-locators), never by changing assertions.
 12. Exploratory sessions use the skill explore-charter and are logged in Testiny.
+13. Playwright CLI is a local dev dependency of e2e/: run it as "npx playwright-cli ..." from e2e/, never as a global command.

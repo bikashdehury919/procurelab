@@ -24,6 +24,7 @@
   "type": "commonjs",
   "devDependencies": {
     "@faker-js/faker": "^10.6.0",
+    "@playwright/cli": "^0.1.22",
     "@playwright/test": "^1.64.0",
     "@testiny/cli": "^1.41.0",
     "@types/node": "^26.6.5",
