@@ -24,8 +24,9 @@ Explore the UI:    playwright-cli open http://localhost:3000/login ; playwright-
 - e2e/src/data/DataFactory.ts ALL generated data (Faker per market locale). Never hard-code names in specs.
 - e2e/src/api/TestDataApi.ts  arrange/cleanup through the API, never through the UI
 - e2e/src/pages/*             Page Object Model: one class per page, locators via getByTestId only
+- e2e/src/locators/hub.ts     Locator Hub: the most important locators, with logged self-healing fallbacks
 - e2e/src/fixtures/test.ts    import test/expect from here, never from @playwright/test in specs
-- e2e/utils/                  Testiny upload, email, reporting, LLM judge
+- e2e/utils/                  Testiny upload, reporting summary, healing report
 
 ## Rules for new tests
 1. Every test has an id annotation: { annotation: { type: 'id', description: 'REG-XXX-NN' } } -> becomes the Testiny key (+ market).
@@ -38,3 +39,7 @@ Explore the UI:    playwright-cli open http://localhost:3000/login ; playwright-
    Data created through the UI must be deleted through the API in a finally block.
 8. Never weaken an assertion to make a test pass. If the app is wrong, use test.fail() with an issue annotation and report it.
 9. A new test must pass with --repeat-each=3 and npm run typecheck before it is proposed.
+10. npm run lint must pass (0 errors) before a test is proposed.
+11. Locators listed in e2e/src/locators/hub.ts are found with this.hub.find(<key>) in page objects.
+    A broken hub locator is fixed in hub.ts (skill heal-locators), never by changing assertions.
+12. Exploratory sessions use the skill explore-charter and are logged in Testiny.

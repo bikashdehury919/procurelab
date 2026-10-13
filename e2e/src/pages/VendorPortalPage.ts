@@ -5,7 +5,6 @@ import type { Lang, MarketCode } from '../config/markets';
 /** Vendor portal: My RFPs list and the RFP response page (documents, questions, proposal). */
 export class VendorPortalPage extends BasePage {
   readonly invitationRows: Locator;
-  readonly company: Locator;
   readonly requirements: Locator;
   readonly documents: Locator;
   readonly proposalError: Locator;
@@ -18,7 +17,6 @@ export class VendorPortalPage extends BasePage {
   constructor(page: Page, market: MarketCode, lang?: Lang) {
     super(page, market, lang);
     this.invitationRows = page.getByTestId('invitation-row');
-    this.company = page.getByTestId('vendor-company');
     this.requirements = page.getByTestId('requirement-item');
     this.documents = page.getByTestId('file-link');
     this.proposalError = page.getByTestId('proposal-error');
@@ -32,6 +30,12 @@ export class VendorPortalPage extends BasePage {
   async goto() {
     await this.open('/portal');
   }
+
+  /** Company name under the title, found through the Locator Hub (self-healing). */
+  async companyName(): Promise<Locator> {
+    return this.hub.find('portal.vendorCompany');
+  }
+
   async gotoRfp(rfpId: string) {
     await this.open(`/portal/rfps/${rfpId}`);
   }
@@ -54,6 +58,6 @@ export class VendorPortalPage extends BasePage {
     await this.page.getByTestId('input-deliveryMonths').fill(String(p.deliveryMonths));
     if (p.files?.length) await this.page.getByTestId('input-documents').setInputFiles(p.files);
     if (p.note) await this.page.getByTestId('input-note').fill(p.note);
-    await this.page.getByTestId('submit-proposal').click();
+    await (await this.hub.find('portal.submitProposal')).click();
   }
 }
