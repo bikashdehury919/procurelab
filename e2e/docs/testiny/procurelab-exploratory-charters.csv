@@ -1,0 +1,33 @@
+"folder","title","precondition","steps","expected_result","priority","test_type","automation_id","markets","automation_status"
+"03 Exploratory charters","EXP-01 Explore RFP creation with unusual inputs to discover validation gaps","Setup: Procurement manager, NL and DK. Fresh project with 3 requirements.
+Time-box: 60 min","Focus and heuristics: Goldilocks (too small, too big, just right) on title, deadline and files; Unicode and emoji in titles; very long names; deadline today vs tomorrow; double-click Send; browser back after send.
+Session notes: (fill in during the session: what you tried, what you saw, questions)","Oracles: No server error, no duplicate RFPs, clear messages in the UI language. Report: input, expected, actual, screenshot.
+Debrief: bugs raised, risks, follow-up charters, % time on testing vs setup vs bug reporting","Medium","Exploratory","EXP-01","NL, DK","Manual"
+"03 Exploratory charters","EXP-02 Explore the vendor proposal flow as a hurried vendor to discover usability and data-loss risks","Setup: Vendor user (BE). Open RFP with documents.
+Time-box: 45 min","Focus and heuristics: Interrupt the flow (reload, back, session timeout, second tab); submit with comma decimals (1.234,56); paste values; large documents; slow network (DevTools throttling).
+Session notes: (fill in during the session: what you tried, what you saw, questions)","Oracles: Data is never lost silently; VAT preview stays correct; duplicate submissions refused.
+Debrief: bugs raised, risks, follow-up charters, % time on testing vs setup vs bug reporting","Medium","Exploratory","EXP-02","BE","Manual"
+"03 Exploratory charters","EXP-03 Explore market and language switching to discover formatting and translation issues","Setup: Procurement manager. All 4 markets x 4 languages.
+Time-box: 60 min","Focus and heuristics: Tour every page in each combination; currency, number and date formats; untranslated or truncated labels; mixed-language screens; switch mid-form.
+Session notes: (fill in during the session: what you tried, what you saw, questions)","Oracles: Every screen uses one language and the market's currency/VAT. Log each untranslated string with page + language.
+Debrief: bugs raised, risks, follow-up charters, % time on testing vs setup vs bug reporting","Medium","Exploratory","EXP-03","All","Manual"
+"03 Exploratory charters","EXP-04 Explore role boundaries to discover access-control weaknesses","Setup: Accounts: admin, buyer, vendor NL, vendor DK. Two browsers.
+Time-box: 45 min","Focus and heuristics: URL tampering (other ids, other markets), direct POSTs, file download URLs, deactivated user mid-session, vendor switching ?market.
+Session notes: (fill in during the session: what you tried, what you saw, questions)","Oracles: No data from another role, market or competitor is visible. Any leak is a Critical bug.
+Debrief: bugs raised, risks, follow-up charters, % time on testing vs setup vs bug reporting","Medium","Exploratory","EXP-04","NL, DK","Manual"
+"03 Exploratory charters","EXP-05 Explore the AI Proposal Analyzer with edge-case proposals to discover misleading recommendations","Setup: Procurement manager (NL). Create RFPs with 1, 2 and 3 proposals via API.
+Time-box: 45 min","Focus and heuristics: Equal prices, extreme delivery times (1 vs 36 months), very low ratings, missing documents, a single proposal; compare score explanation with intuition.
+Session notes: (fill in during the session: what you tried, what you saw, questions)","Oracles: Recommendation is explainable from the documented weights; risk labels match the rules; no recommendation of a clearly worse offer.
+Debrief: bugs raised, risks, follow-up charters, % time on testing vs setup vs bug reporting","Medium","Exploratory","EXP-05","NL","Manual"
+"03 Exploratory charters","EXP-06 Explore data persistence to discover consistency problems","Setup: Admin. Access to the app's data/ folder.
+Time-box: 30 min","Focus and heuristics: Create, edit, archive, delete; restart the app; compare UI with data/*.json; export; reset; concurrent edits in two tabs.
+Session notes: (fill in during the session: what you tried, what you saw, questions)","Oracles: UI and JSON files always agree; restart keeps data; export never contains password hashes.
+Debrief: bugs raised, risks, follow-up charters, % time on testing vs setup vs bug reporting","Medium","Exploratory","EXP-06","NL","Manual"
+"03 Exploratory charters","EXP-07 Explore the vendor directory with many vendors to discover search and filter issues","Setup: Procurement manager. Seed 50 vendors via the API with the data factory.
+Time-box: 30 min","Focus and heuristics: Combined filters, accents (Øresund, Köln), partial words, case, ratings at boundaries, empty results, sorting expectations.
+Session notes: (fill in during the session: what you tried, what you saw, questions)","Oracles: Results are correct and predictable; empty state is helpful.
+Debrief: bugs raised, risks, follow-up charters, % time on testing vs setup vs bug reporting","Medium","Exploratory","EXP-07","DK, DE","Manual"
+"03 Exploratory charters","EXP-08 Explore keyboard-only and screen-reader use to discover accessibility barriers","Setup: Any role. Keyboard only; NVDA/VoiceOver optional; axe DevTools.
+Time-box: 45 min","Focus and heuristics: Tab order, visible focus, form errors announced, labels on every input, tables with headers, colour-only status.
+Session notes: (fill in during the session: what you tried, what you saw, questions)","Oracles: Every task completable without a mouse; axe shows no critical issues.
+Debrief: bugs raised, risks, follow-up charters, % time on testing vs setup vs bug reporting","Medium","Exploratory","EXP-08","NL","Manual"

@@ -1,0 +1,15 @@
+"folder","title","precondition","steps","expected_result","priority","test_type","automation_id","markets","automation_status"
+"02 Regression/RFPs","RFP-EXT-01 Buyer extends an open RFP deadline by 7 days","Signed in as procurement manager. Market NL (feature flag deadlineExtension on). An open RFP exists.","1. Open the RFP
+2. Enter 7 in 'Extend deadline by'
+3. Click 'Extend deadline'","1. The RFP page shows the extension form under the deadline
+2. -
+3. A confirmation message shows the new date; the deadline is 7 days later than before","High","Regression","RFP-EXT-01","NL","To automate"
+"02 Regression/RFPs","RFP-EXT-02 An extension outside 1 to 30 days is rejected","Signed in as procurement manager. Market NL. An open RFP exists.","1. Open the RFP
+2. Extend the deadline by 0 days
+3. Extend the deadline by 31 days","1. The extension form is visible
+2. An error says to enter 1 to 30 days; the deadline is unchanged
+3. The same error is shown; the deadline is unchanged","High","Regression","RFP-EXT-02","NL","To automate"
+"02 Regression/RFPs","RFP-EXT-03 The extension is not offered where the feature is off","Signed in as procurement manager. Market BE (feature flag deadlineExtension off). An open RFP exists.","1. Open the RFP in market BE","1. The RFP page shows the deadline but no extension form","Medium","Regression","RFP-EXT-03","BE","To automate"
+"02 Regression/Vendor portal","RFP-EXT-04 Vendor sees the extended deadline","An open RFP inviting the NL vendor login was extended by the buyer.","1. Sign in as vendor.nl@procurelab.test
+2. Open My RFPs","1. -
+2. The invitation shows the new deadline","Medium","Regression","RFP-EXT-04","NL","To automate"

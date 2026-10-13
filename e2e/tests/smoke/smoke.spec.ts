@@ -119,7 +119,7 @@ test.describe('Smoke', { tag: '@smoke' }, () => {
       { annotation: { type: 'id', description: 'SMK-08' } },
       async ({ portalPage, seeded }) => {
         await portalPage.goto();
-        await expect(portalPage.company).toHaveText(seeded.vendorCompany);
+        await expect(await portalPage.companyName()).toHaveText(seeded.vendorCompany);
         const row = portalPage.invitation(seeded.vendorOpenRfp);
         await expect(row.getByTestId('invitation-status')).toHaveAttribute('data-status', 'awaiting');
         await portalPage.openRfp(seeded.vendorOpenRfp);

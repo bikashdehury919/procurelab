@@ -1,0 +1,115 @@
+"folder","title","precondition","steps","expected_result","priority","test_type","automation_id","markets","automation_status"
+"01 Smoke","SMK-01 Buyer signs in through the UI in the market language","Seeded demo data. Market selected via ?market=<code>.","1. Open /login?market=<code>
+2. Sign in as buyer@procurelab.test / Demo123!","1. Login page is shown; html lang equals the market's default language
+2. Dashboard opens; body data-market equals the market","Critical","Smoke","SMK-01","NL, BE, DK, DE","Automated (smoke)"
+"01 Smoke","SMK-02 Dashboard shows KPIs, activity and market settings","Signed in as procurement manager.","1. Open the dashboard in the market
+2. Check recent activity
+3. Check the footer","1. KPI cards Projects, Active RFPs, Proposals and Vendors are visible with values above 0
+2. At least one activity item is listed
+3. Footer shows market code, locale (lang-MARKET) and the market currency","Critical","Smoke","SMK-02","NL, BE, DK, DE","Automated (smoke)"
+"01 Smoke","SMK-03 Projects list shows the market's projects","Signed in as procurement manager.","1. Open Projects
+2. Open the seeded project","1. The seeded project of the market is listed
+2. Project title and its requirements are shown","High","Smoke","SMK-03","NL, BE, DK, DE","Automated (smoke)"
+"01 Smoke","SMK-04 Vendor directory filters by expertise","Signed in as procurement manager.","1. Open Vendors and filter by expertise Security","1. The market's security vendor is listed and the empty state is not shown","High","Smoke","SMK-04","NL, BE, DK, DE","Automated (smoke)"
+"01 Smoke","SMK-05 Create a project end to end","Signed in as procurement manager. Unique project data from the data factory.","1. Open New project and fill all fields with valid data
+2. Save
+3. (cleanup) Delete the project through the API","1. Form accepts the input
+2. Project page opens with the new title and a success message
+3. Project no longer exists","Critical","Smoke","SMK-05","NL, BE, DK, DE","Automated (smoke)"
+"01 Smoke","SMK-06 Proposal prices use the market currency and VAT","Seeded RFP with proposals in the market.","1. Open the seeded RFP with proposals
+2. Compare each price with the API value
+3. Check VAT columns","1. Proposal table is shown
+2. Net price is formatted in the market currency and locale
+3. If vatBreakdown is on, gross = net x (1 + market VAT); if off, the VAT columns are hidden","Critical","Smoke","SMK-06","NL, BE, DK, DE","Automated (smoke)"
+"01 Smoke","SMK-07 Language can be switched to English in each market","Signed in as procurement manager.","1. Switch the language to English","1. Locale becomes en-<market>; navigation shows 'Projects'","Medium","Smoke","SMK-07","NL, BE, DK, DE","Automated (smoke)"
+"01 Smoke","SMK-08 Vendor sees an open RFP with requirements and documents","Signed in as the market's vendor user.","1. Open My RFPs
+2. Open the RFP","1. Vendor company name is shown; the open RFP has status Awaiting response
+2. Requirements and at least one downloadable document are shown","Critical","Smoke","SMK-08","NL, BE, DK, DE","Automated (smoke)"
+"01 Smoke/API","API-01 Health endpoint is up","App running.","1. GET /api/health","1. 200 with status ok","Critical","Smoke","API-01","-","Automated (api)"
+"01 Smoke/API","API-02 Config exposes all markets with VAT and currency","App running.","1. GET /api/config","1. Markets NL, BE, DK, DE with VAT 21/21/25/19% and DKK for DK","High","Smoke","API-02","-","Automated (api)"
+"01 Smoke/API","API-03 Test data API rejects requests without a token","App running.","1. POST /api/test/reset without x-test-token","1. 401","High","Smoke","API-03","-","Automated (api)"
+"01 Smoke/API","API-04 Project lifecycle through the API","Valid test token.","1. Create a project with locale data, list, delete","1. Created project is listed, then gone after delete","Medium","Smoke","API-04","-","Automated (api)"
+"02 Regression/Projects","REG-PRJ-01 Mandatory project fields are validated","Signed in as procurement manager.","1. Open New project and save without input","1. Form is shown again with errors for name, owner, budget, start date and end date","High","Regression","REG-PRJ-01","NL","Automated (regression)"
+"02 Regression/Projects","REG-PRJ-02 End date before start date is rejected","Signed in as procurement manager.","1. Fill a valid project but set the end date before the start date and save","1. Only the end date shows an error","High","Regression","REG-PRJ-02","NL","Automated (regression)"
+"02 Regression/Projects","REG-PRJ-03 Duplicate project names are rejected within a market","A project exists (created through the API).","1. Create a project with the same name in the same market","1. Name field shows the duplicate error","High","Regression","REG-PRJ-03","NL","Automated (regression)"
+"02 Regression/Projects","REG-PRJ-04 Search and status filter","One planning and one active project exist.","1. Search by the planning project's name
+2. Search the active project's name with status Planning","1. Only that project is listed
+2. Empty state is shown","Medium","Regression","REG-PRJ-04","NL","Automated (regression)"
+"02 Regression/Projects","REG-PRJ-05 Archive hides a project; restore brings it back","An active project exists.","1. Archive the project
+2. Filter by Archived
+3. Restore it","1. It disappears from the default list
+2. It is listed
+3. Status returns to Active","Medium","Regression","REG-PRJ-05","NL","Automated (regression)"
+"02 Regression/Projects","REG-PRJ-06 An RFP needs at least one requirement","A project without requirements exists.","1. Open New RFP for the project
+2. Add requirement 'Penetration test' (Must have)","1. A message says a requirement must be added first
+2. Requirement is listed with its priority","High","Regression","REG-PRJ-06","NL","Automated (regression)"
+"02 Regression/Projects","PRJ-07 Edit a project and keep its status","An active project exists.","1. Edit the budget and description, save
+2. Edit the name to an existing project's name","1. Success message; new values shown in the project header
+2. Duplicate error; original name unchanged","Medium","Regression","PRJ-07","NL, BE, DK, DE","To automate"
+"02 Regression/Projects","PRJ-08 Budget is formatted per market","One project per market.","1. Open Projects in each market","1. Budget uses the market currency and number format (e.g. DKK in DK, EUR with comma decimals in NL/DE)","Medium","Regression","PRJ-08","NL, BE, DK, DE","To automate"
+"02 Regression/Vendors","VEN-01 Add a vendor with valid data","Signed in as procurement manager.","1. Open Add vendor and fill name, location, contact, email, rating 4.2, two expertise areas","1. Vendor is saved and listed with a success message","High","Regression","VEN-01","NL, BE, DK, DE","To automate"
+"02 Regression/Vendors","VEN-02 Vendor form validation","Signed in as procurement manager.","1. Save with rating 7, invalid email and no expertise
+2. Boundary: rating 1 and 5
+3. Boundary: rating 0.9 and 5.1","1. Errors for rating (1 to 5), email and expertise; nothing saved
+2. Both accepted
+3. Both rejected","High","Regression","VEN-02","NL","To automate"
+"02 Regression/Vendors","VEN-03 Combined search, expertise and rating filters","Seeded vendors.","1. Search 'ISO 27001' with minimum rating 4.5
+2. Filter an expertise nobody has in the market","1. Only vendors with that certification and rating >= 4.5 are listed
+2. Empty state is shown","Medium","Regression","VEN-03","NL, BE, DK, DE","To automate"
+"02 Regression/Vendors","VEN-04 Assign a vendor to a project from the vendor page","A project and a vendor exist.","1. Open the vendor and assign it to the project
+2. Open New RFP for that project","1. Success message; vendor appears under Assigned vendors on the project
+2. The assigned vendor is pre-ticked","Medium","Regression","VEN-04","NL","To automate"
+"02 Regression/Vendors","VEN-05 Removing a vendor removes it from project assignments","Vendor assigned to a project.","1. Remove the vendor","1. It disappears from the directory and from the project's assigned vendors","Medium","Regression","VEN-05","NL","To automate"
+"02 Regression/RFPs","REG-RFP-01 Send an RFP with an attachment","Project with two requirements.","1. Create an RFP: title, requirements, the market's vendor, deadline +14 days, upload rfp-scope.pdf","1. RFP page opens with a success message and the file listed","Critical","Regression","REG-RFP-01","NL","Automated (regression)"
+"02 Regression/RFPs","REG-RFP-02 Disallowed file types are rejected","Project with a requirement.","1. Upload not-allowed.exe with an otherwise valid RFP","1. Upload error is shown; RFP is not created","High","Regression","REG-RFP-02","NL","Automated (regression)"
+"02 Regression/RFPs","REG-RFP-03 Vendor responds, buyer compares, analyzes and selects","Open RFP inviting the market's vendor-login company and one competitor.","1. Competitor submits through the API without a document
+2. Vendor submits 95,000 / 6 months with a document through the portal
+3. Buyer opens the RFP and sorts by price
+4. Check the analyzer
+5. Compare both, then select the vendor","1. Proposal stored
+2. Success message; own proposal shown
+3. Vendor first, competitor second
+4. Vendor 'Complete'; competitor 'Missing: proposal document' and risk not Low
+5. Side-by-side view; RFP Awarded; vendor Selected; competitor Not selected","Critical","Regression","REG-RFP-03","NL","Automated (regression)"
+"02 Regression/RFPs","RFP-04 RFP form validation","Project with a requirement.","1. Send without title, requirements, vendors and with a past deadline","1. Four field errors; nothing created","High","Regression","RFP-04","NL","To automate"
+"02 Regression/RFPs","RFP-05 Upload size and count limits","Project with a requirement.","1. Upload a 6 MB PDF
+2. Upload 6 files","1. Error mentions the 5 MB limit
+2. Error: at most 5 files","Medium","Regression","RFP-05","NL","To automate"
+"02 Regression/RFPs","RFP-06 Compare needs 2 or 3 proposals","RFP with 3 proposals.","1. Tick 1 proposal and compare
+2. Tick 3 and compare","1. Notice: select 2 or 3
+2. Side-by-side view with 3 columns","Medium","Regression","RFP-06","NL","To automate"
+"02 Regression/Vendor portal","REG-VND-01 A second proposal for the same RFP is refused","Vendor invited to an open RFP.","1. Submit a proposal
+2. Post a second proposal (form replay)","1. Own proposal shown
+2. Server answers 409","High","Regression","REG-VND-01","NL","Automated (regression)"
+"02 Regression/Vendor portal","REG-VND-02 A closed RFP no longer accepts proposals","RFP with a past deadline.","1. Open the RFP as the invited vendor","1. Closed notice; no proposal form","High","Regression","REG-VND-02","NL","Automated (regression)"
+"02 Regression/Vendor portal","REG-VND-03 Vendors cannot open RFPs they are not invited to, or buyer pages","RFP that does not invite the vendor.","1. Open the RFP URL
+2. Open /dashboard","1. Not found page
+2. 403","Critical","Regression","REG-VND-03","NL","Automated (regression)"
+"02 Regression/Vendor portal","VND-04 Question and answer flow","vendorQuestions flag on (NL, BE).","1. Vendor asks a question
+2. Buyer answers it on the RFP page
+3. Vendor reloads","1. Question listed as Awaiting answer
+2. Answer saved
+3. Answer is visible to the vendor","Medium","Regression","VND-04","NL, BE","To automate"
+"02 Regression/Vendor portal","VND-05 Live VAT preview per market","Open RFP for the market's vendor.","1. Type a net price of 1000","1. VAT and total update immediately using the market VAT (or no preview where vatBreakdown is off)","Medium","Regression","VND-05","NL, BE, DK, DE","To automate"
+"02 Regression/Vendor portal","VND-06 Competitor documents cannot be downloaded","Competitor proposal with a document.","1. Vendor requests the competitor file URL","1. 404; no file content returned","Critical","Regression","VND-06","NL","To automate"
+"02 Regression/AI Proposal Analyzer","ANL-01 Deterministic scores for the seeded RFP","Fresh seed (reset).","1. Open 'Cloud Migration RFP'","1. CloudTech 91% (Recommended, Low), DataSphere 89% (Medium), DigitalWorks 86% (High, Missing: proposal document)","High","Regression","ANL-01","NL","To automate"
+"02 Regression/AI Proposal Analyzer","ANL-02 AI summary without configuration","ANTHROPIC_API_KEY not set on the app.","1. Click Generate AI summary","1. Clear 'not configured' notice; rule-based analysis still shown","Medium","Regression","ANL-02","NL","To automate"
+"02 Regression/AI Proposal Analyzer","ANL-03 AI summary is faithful (LLM-as-judge)","ANTHROPIC_API_KEY set on the app and the test runner.","1. Generate the summary
+2. Judge it against the facts","1. Summary shown in the current UI language
+2. Rubric passes: only real vendors/numbers, correct language, mentions price vs delivery trade-off and missing info","Medium","Regression","ANL-03","NL, DK","To automate (judge)"
+"02 Regression/Administration","REG-ADM-01 Admin creates a user; deactivation signs them out","Signed in as admin.","1. Create a procurement manager
+2. Sign in as the new user in another browser
+3. Deactivate the user, then reload their page","1. Success message; user listed
+2. Dashboard opens
+3. Redirected to login","Critical","Regression","REG-ADM-01","NL","Automated (regression)"
+"02 Regression/Administration","REG-ADM-02 Procurement managers cannot open user administration","Signed in as procurement manager.","1. Open /admin/users","1. 403","High","Regression","REG-ADM-02","NL","Automated (regression)"
+"02 Regression/Administration","ADM-03 Vendor users are linked to their company's market","Signed in as admin.","1. Create a vendor user for DataSphere with home market DE
+2. Sign in as that user","1. User saved with market NL (the vendor's market)
+2. Only DataSphere's RFPs are shown","Medium","Regression","ADM-03","NL","To automate"
+"02 Regression/Administration","ADM-04 Admin cannot deactivate their own account","Signed in as admin.","1. Try to deactivate yourself","1. No button for own row; direct POST returns 409 with message","Medium","Regression","ADM-04","NL","To automate"
+"02 Regression/Administration","ADM-05 Data export contains no password hashes","Signed in as admin.","1. Download the JSON export","1. File downloads; no 'passwordHash' anywhere; users included","High","Regression","ADM-05","NL","To automate"
+"02 Regression/Markets and languages","REG-I18N-01 Every language defines every UI text","App running.","1. GET /api/i18n","1. No missing keys for en, nl, da, de","High","Regression","REG-I18N-01","-","Automated (regression)"
+"02 Regression/Markets and languages","REG-I18N-02 German RFP form is fully translated","Known defect PL-BUG-001.","1. Open New RFP with lang=de","1. Button reads 'Ausschreibung senden' (currently 'Send RFP': marked test.fail until fixed)","Medium","Regression","REG-I18N-02","DE","Automated (known defect)"
+"02 Regression/Markets and languages","I18N-03 Feature flags per market","Default flags.","1. Open the seeded RFP in each market
+2. Override with ?ff_aiAnalyzer=on in DE","1. BE: no VAT columns and no analyzer; DE: no analyzer and no questions; NL: all features
+2. Analyzer appears for that session","High","Regression","I18N-03","NL, BE, DK, DE","To automate"
