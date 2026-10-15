@@ -1,6 +1,6 @@
 import { test as base, expect, type Page } from '@playwright/test';
 import { env } from '../config/env';
-import { authFile, type AppConfig, type MarketCode, type Role, testData } from '../config/markets';
+import { authFile, money, type AppConfig, type MarketCode, type MarketConfig, type Role, testData } from '../config/markets';
 import { TestDataApi, type Project, type Requirement, type Rfp, type Vendor } from '../api/TestDataApi';
 import { DataFactory } from '../data/DataFactory';
 import * as P from '../pages';
@@ -20,6 +20,8 @@ type Seeder = {
 type Fixtures = {
   api: TestDataApi;
   appConfig: AppConfig;
+  /** The current market's entry from GET /api/config (VAT, currency, flags). */
+  marketConfig: MarketConfig;
   data: DataFactory;
   seed: Seeder;
   /** Open an extra, independently signed-in page for another role (multi-role scenarios). */
@@ -59,6 +61,12 @@ export const test = base.extend<Fixtures & FixtureOptions>({
 
   appConfig: async ({ api }, use) => {
     await use(await api.config());
+  },
+
+  marketConfig: async ({ appConfig, market }, use) => {
+    const cfg = appConfig.markets.find((m) => m.code === market);
+    if (!cfg) throw new Error(`Market ${market} missing from GET /api/config`);
+    await use(cfg);
   },
 
   data: async ({ market }, use, testInfo) => {
@@ -129,9 +137,4 @@ export const test = base.extend<Fixtures & FixtureOptions>({
   adminUsersPage: async ({ page, market }, use) => use(new P.AdminUsersPage(page, market)),
 });
 
-export { expect };
-
-/** Format money exactly like the app does (language + market region, market currency). */
-export function money(amount: number, lang: string, market: MarketCode, currency: string): string {
-  return new Intl.NumberFormat(`${lang}-${market}`, { style: 'currency', currency }).format(amount);
-}
+export { expect, money };

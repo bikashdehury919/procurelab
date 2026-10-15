@@ -1,4 +1,4 @@
-import { test, expect, money } from '../../src/fixtures/test';
+import { test, expect } from '../../src/fixtures/test';
 import { env } from '../../src/config/env';
 import { authFile, testData } from '../../src/config/markets';
 
@@ -10,10 +10,9 @@ test.describe('Smoke', { tag: '@smoke' }, () => {
   test(
     'SMK-01 buyer signs in through the UI in the market language',
     { annotation: { type: 'id', description: 'SMK-01' } },
-    async ({ loginPage, page, market, appConfig }) => {
-      const lang = appConfig.markets.find((m) => m.code === market)!.defaultLang;
+    async ({ loginPage, page, marketConfig }) => {
       await loginPage.goto();
-      await expect(page.locator('html')).toHaveAttribute('lang', lang);
+      await expect(page.locator('html')).toHaveAttribute('lang', marketConfig.defaultLang);
       await loginPage.login(testData.accounts.buyer, env.demoPassword);
       await expect(page).toHaveURL(/\/dashboard/);
       await loginPage.expectMarket();
@@ -26,8 +25,7 @@ test.describe('Smoke', { tag: '@smoke' }, () => {
     test(
       'SMK-02 dashboard shows KPIs, activity and market settings',
       { annotation: { type: 'id', description: 'SMK-02' } },
-      async ({ dashboardPage, market, appConfig }) => {
-        const cfg = appConfig.markets.find((m) => m.code === market)!;
+      async ({ dashboardPage, market, marketConfig: cfg }) => {
         await dashboardPage.goto();
         await dashboardPage.expectMarket();
         for (const kpi of ['projects', 'active-rfps', 'proposals', 'vendors'] as const) {
@@ -45,7 +43,7 @@ test.describe('Smoke', { tag: '@smoke' }, () => {
       async ({ projectsPage, projectPage, seeded }) => {
         await projectsPage.goto();
         await expect(projectsPage.row(seeded.project)).toBeVisible();
-        await projectsPage.row(seeded.project).getByTestId('project-link').click();
+        await projectsPage.openProject(seeded.project);
         await expect(projectPage.title).toHaveText(seeded.project);
         await expect(projectPage.requirementNames.first()).toBeVisible();
       },
@@ -70,8 +68,7 @@ test.describe('Smoke', { tag: '@smoke' }, () => {
           await expect(projectPage.title).toHaveText(input.name);
           await expect(projectPage.flash).toBeVisible();
         } finally {
-          const created = (await api.listProjects(market)).find((p) => p.name === input.name);
-          if (created) await api.deleteProject(created.id);
+          await api.deleteProjectByName(market, input.name);
         }
       },
     );
@@ -79,22 +76,17 @@ test.describe('Smoke', { tag: '@smoke' }, () => {
     test(
       'SMK-06 proposal prices use the market currency and VAT',
       { annotation: { type: 'id', description: 'SMK-06' } },
-      async ({ page, projectsPage, rfpPage, seeded, api, market, appConfig }) => {
-        const cfg = appConfig.markets.find((m) => m.code === market)!;
+      async ({ projectsPage, projectPage, rfpPage, seeded, api, marketConfig: cfg }) => {
         await projectsPage.goto();
-        await projectsPage.row(seeded.project).getByTestId('project-link').click();
-        await page.getByTestId('rfp-link').filter({ hasText: seeded.rfpWithProposals }).click();
+        await projectsPage.openProject(seeded.project);
+        await projectPage.openRfp(seeded.rfpWithProposals);
         await expect(rfpPage.title).toHaveText(seeded.rfpWithProposals);
 
-        const rfpId = page.url().match(/rfps\/(r\d+)/)![1]!;
-        const { proposals } = await api.getRfp(rfpId);
+        const { proposals } = await api.getRfp(await rfpPage.id());
         expect(proposals.length).toBeGreaterThan(0);
         for (const p of proposals) {
-          const row = page.locator(`[data-testid="proposal-row"][data-proposal-id="${p.id}"]`);
-          await expect(row.getByTestId('proposal-price')).toHaveText(money(p.priceNet, cfg.defaultLang, market, cfg.currency));
+          await rfpPage.expectProposalPricing(p, cfg);
           expect(p.gross).toBeCloseTo(p.priceNet * (1 + cfg.vatRate), 2);
-          if (cfg.flags.vatBreakdown) await expect(row.getByTestId('proposal-gross')).toHaveText(money(p.gross, cfg.defaultLang, market, cfg.currency));
-          else await expect(row.getByTestId('proposal-gross')).toHaveCount(0);
         }
       },
     );

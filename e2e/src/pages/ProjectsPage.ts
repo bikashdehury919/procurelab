@@ -43,6 +43,9 @@ export class ProjectsPage extends BasePage {
   row(name: string): Locator {
     return this.rows.filter({ has: this.page.getByTestId('project-link').getByText(name, { exact: true }) });
   }
+  async openProject(name: string) {
+    await this.row(name).getByTestId('project-link').click();
+  }
 
   async filter({ q = '', status = '' }: { q?: string; status?: string }) {
     await this.search.fill(q);

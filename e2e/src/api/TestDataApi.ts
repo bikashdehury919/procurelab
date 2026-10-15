@@ -98,6 +98,11 @@ export class TestDataApi {
   listProjects(market: MarketCode) {
     return this.request.get(`/api/projects?market=${market}`, { headers: this.headers }).then((r) => this.ok<Project[]>(r));
   }
+  /** Cleanup for projects created through the UI: no-op when the project was never created. */
+  async deleteProjectByName(market: MarketCode, name: string) {
+    const project = (await this.listProjects(market)).find((p) => p.name === name);
+    if (project) await this.deleteProject(project.id);
+  }
 
   addRequirement(projectId: string, data: { name: string; priority?: Requirement['priority'] }) {
     return this.request.post(`/api/projects/${projectId}/requirements`, { headers: this.headers, data }).then((r) => this.ok<Requirement>(r));
