@@ -1,10 +1,10 @@
 // Feature flags per market, shaped like a flag provider so OpenFeature + LaunchDarkly
 // can replace this module later without touching routes or views.
 const FLAG_DEFAULTS = {
-  NL: { vatBreakdown: true,  aiAnalyzer: true,  vendorQuestions: true  },
-  BE: { vatBreakdown: false, aiAnalyzer: false, vendorQuestions: true  },
-  DK: { vatBreakdown: true,  aiAnalyzer: true,  vendorQuestions: false },
-  DE: { vatBreakdown: true,  aiAnalyzer: false, vendorQuestions: false },
+  NL: { vatBreakdown: true,  aiAnalyzer: true,  vendorQuestions: true,  deadlineExtension: true  },
+  BE: { vatBreakdown: false, aiAnalyzer: false, vendorQuestions: true,  deadlineExtension: false },
+  DK: { vatBreakdown: true,  aiAnalyzer: true,  vendorQuestions: false, deadlineExtension: true  },
+  DE: { vatBreakdown: true,  aiAnalyzer: false, vendorQuestions: false, deadlineExtension: false },
 };
 const FLAG_NAMES = Object.keys(FLAG_DEFAULTS.NL);
 

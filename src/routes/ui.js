@@ -230,14 +230,28 @@ module.exports = function uiRoutes() {
     const selected = req.query.vendor ? store.getVendor(req.query.vendor) : null;
     const message = req.query.msg === 'sent' ? t('rfpSent', { count: rfp.vendorIds.length })
       : req.query.msg === 'selected' && selected ? t('selectedMsg', { vendor: selected.name })
-      : req.query.msg === 'rejected' ? t('rejectedMsg') : req.query.msg === 'answered' ? t('answerSaved') : null;
+      : req.query.msg === 'rejected' ? t('rejectedMsg') : req.query.msg === 'answered' ? t('answerSaved')
+      : req.query.msg === 'extended' ? t('deadlineExtended', { date: req.ctx.fmt.date(rfp.deadline) }) : null;
     const notice = req.query.ai === 'unavailable' ? t('aiUnavailable') : req.query.ai === 'failed' ? t('aiFailed') : req.query.compare === 'invalid' ? t('errCompare') : null;
     res.send(buyerViews.rfpDetail(req.ctx, {
       project: req.project, rfp, rows, analysis: analysisFor(rfp), sort, minRating, message, notice,
+      extendError: req.query.extend === 'invalid' ? t('errExtendDays') : req.query.extend === 'closed' ? t('errExtendClosed') : null,
+      extendDays: req.query.extend === 'invalid' ? String(req.query.days || '') : '7',
       requirements: rfp.requirementIds.map(store.getRequirement).filter(Boolean),
       invited: rfp.vendorIds.map((id) => ({ vendor: store.getVendor(id), responded: !!store.proposalOf(rfp.id, id) })).filter((x) => x.vendor),
       files: store.filesFor('rfp', rfp.id),
     }));
+  });
+
+  // Feature behind the deadlineExtension flag: POST days=1..30 on an open RFP.
+  router.post('/rfps/:id/extend', buyer, loadRfp, (req, res) => {
+    if (!req.ctx.flags.deadlineExtension) return res.status(404).send(notFoundPage(req.ctx));
+    if (!store.isOpen(req.rfp)) return res.redirect(`/rfps/${req.rfp.id}?extend=closed`);
+    const raw = String(req.body.days ?? '').trim();
+    const days = Number(raw);
+    if (!/^\d+$/.test(raw) || days < 1 || days > 30) return res.redirect(`/rfps/${req.rfp.id}?extend=invalid&days=${encodeURIComponent(raw)}`);
+    store.extendRfpDeadline(req.rfp.id, days, { actor: req.ctx.user.email });
+    res.redirect(`/rfps/${req.rfp.id}?msg=extended`);
   });
 
   router.get('/rfps/:id/compare', buyer, loadRfp, (req, res) => {
