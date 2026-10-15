@@ -46,4 +46,7 @@ export class ProjectPage extends BasePage {
   async newRfp() {
     await this.page.getByTestId('new-rfp').click();
   }
+  async openRfp(title: string) {
+    await this.rfpLinks.filter({ hasText: title }).click();
+  }
 }

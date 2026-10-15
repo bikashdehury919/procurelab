@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import { BasePage } from './BasePage';
-import type { Lang, MarketCode } from '../config/markets';
+import { money, type Lang, type MarketCode, type MarketConfig } from '../config/markets';
 
 /** Buyer view of an RFP: proposal comparison, AI Proposal Analyzer, invited vendors, questions, files. */
 export class RfpPage extends BasePage {
@@ -29,11 +29,31 @@ export class RfpPage extends BasePage {
     await this.open(`/rfps/${rfpId}${query}`);
   }
 
+  /** Id of the RFP currently open, read from the URL (/rfps/r12). */
+  async id(): Promise<string> {
+    await expect(this.page).toHaveURL(/\/rfps\/r\d+/);
+    const match = /\/rfps\/(r\d+)/.exec(this.page.url());
+    if (!match?.[1]) throw new Error(`Not on an RFP page: ${this.page.url()}`);
+    return match[1];
+  }
+
   proposal(vendor: string): Locator {
     return this.page.locator(`[data-testid="proposal-row"][data-vendor="${vendor}"]`);
   }
+  proposalById(id: string): Locator {
+    return this.page.locator(`[data-testid="proposal-row"][data-proposal-id="${id}"]`);
+  }
   analysis(vendor: string): Locator {
     return this.page.locator(`[data-testid="analysis-row"][data-vendor="${vendor}"]`);
+  }
+
+  /** Net price is always shown; the gross column only when the market's vatBreakdown flag is on. */
+  async expectProposalPricing(p: { id: string; priceNet: number; gross: number }, cfg: MarketConfig) {
+    const row = this.proposalById(p.id);
+    const fmt = (amount: number) => money(amount, cfg.defaultLang, this.market, cfg.currency);
+    await expect(row.getByTestId('proposal-price')).toHaveText(fmt(p.priceNet));
+    if (cfg.flags.vatBreakdown) await expect(row.getByTestId('proposal-gross')).toHaveText(fmt(p.gross));
+    else await expect(row.getByTestId('proposal-gross')).toHaveCount(0);
   }
 
   async vendorsInOrder(): Promise<string[]> {

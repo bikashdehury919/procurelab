@@ -20,6 +20,29 @@ export interface HubEntry {
  * - Claude Code's heal-locators skill turns logged heals into a reviewed change of this file.
  */
 export const LOCATORS = {
+  'login.email': {
+    description: 'Login page: the email input of the sign-in form',
+    strategies: [
+      { by: 'testid', value: 'input-email' },
+      { by: 'css', value: '[data-testid="login-form"] input[name="email"]' },
+      { by: 'css', value: '[data-testid="login-form"] input[type="email"]' },
+    ],
+  },
+  'login.password': {
+    description: 'Login page: the password input of the sign-in form',
+    strategies: [
+      { by: 'testid', value: 'input-password' },
+      { by: 'css', value: '[data-testid="login-form"] input[name="password"]' },
+      { by: 'css', value: '[data-testid="login-form"] input[type="password"]' },
+    ],
+  },
+  'login.submit': {
+    description: 'Login page: the submit button of the sign-in form',
+    strategies: [
+      { by: 'testid', value: 'sign-in' },
+      { by: 'css', value: '[data-testid="login-form"] button[type="submit"]' },
+    ],
+  },
   'portal.vendorCompany': {
     description: 'Vendor portal: the signed-in vendor company name, directly under the page title',
     strategies: [

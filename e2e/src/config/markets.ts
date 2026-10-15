@@ -36,3 +36,9 @@ export interface AppConfig {
   scoringWeights: { price: number; delivery: number; rating: number };
   expertise: string[];
 }
+export type MarketConfig = AppConfig['markets'][number];
+
+/** Format money exactly like the app does (language + market region, market currency). */
+export function money(amount: number, lang: string, market: MarketCode, currency: string): string {
+  return new Intl.NumberFormat(`${lang}-${market}`, { style: 'currency', currency }).format(amount);
+}

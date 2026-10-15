@@ -48,7 +48,7 @@ function optionalInt(key: (typeof SETTINGS)[number]): number | undefined {
 export const env = Object.freeze({
   name,
   baseUrl: url('BASE_URL'),
-  testApiToken: process.env.TEST_API_TOKEN ?? '',
+  testApiToken: required('TEST_API_TOKEN'), // ci/local profiles set the app's local token; render needs the secret
   demoPassword: process.env.DEMO_PASSWORD ?? 'Demo123!',
   workers: optionalInt('WORKERS') || undefined, // 0 or unset = let Playwright decide
   fakerSeed: optionalInt('FAKER_SEED'),
