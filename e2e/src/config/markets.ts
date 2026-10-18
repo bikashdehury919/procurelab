@@ -31,7 +31,7 @@ export interface AppConfig {
     defaultLang: Lang;
     currency: string;
     vatRate: number;
-    flags: Record<'vatBreakdown' | 'aiAnalyzer' | 'vendorQuestions', boolean>;
+    flags: Record<'vatBreakdown' | 'aiAnalyzer' | 'vendorQuestions' | 'deadlineExtension', boolean>;
   }>;
   scoringWeights: { price: number; delivery: number; rating: number };
   expertise: string[];
@@ -41,4 +41,10 @@ export type MarketConfig = AppConfig['markets'][number];
 /** Format money exactly like the app does (language + market region, market currency). */
 export function money(amount: number, lang: string, market: MarketCode, currency: string): string {
   return new Intl.NumberFormat(`${lang}-${market}`, { style: 'currency', currency }).format(amount);
+}
+
+/** Format an ISO date (YYYY-MM-DD) exactly like the app's fmt.date (e.g. "10 Nov 2026"). */
+export function shortDate(iso: string, lang: string, market: MarketCode): string {
+  return new Intl.DateTimeFormat(`${lang}-${market}`, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+    .format(new Date(`${iso}T12:00:00Z`));
 }

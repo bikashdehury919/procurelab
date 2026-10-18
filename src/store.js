@@ -208,6 +208,20 @@ function createRfp(projectId, { title, requirementIds, vendorIds, deadline }, { 
   return r;
 }
 
+// Feature (flag deadlineExtension): extend an open RFP's deadline by 1 to 30 days.
+function extendRfpDeadline(rfpId, days, { actor } = {}) {
+  const r = getRfp(rfpId);
+  const p = getProject(r.projectId);
+  const d = new Date(`${r.deadline}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  if (!r.originalDeadline) r.originalDeadline = r.deadline;
+  r.deadline = d.toISOString().slice(0, 10);
+  r.extendedAt = now();
+  logActivity(p.market, 'deadline_extended', { rfp: r.title, date: r.deadline }, { actor });
+  db.save('rfps', 'activity');
+  return r;
+}
+
 const rfpsForProject = (projectId) => D().rfps.filter((r) => r.projectId === projectId);
 const rfpsForVendor = (vendorId) => D().rfps.filter((r) => r.vendorIds.includes(vendorId));
 const rfpsForMarket = (market) => D().rfps.filter((r) => getProject(r.projectId)?.market === market);
@@ -293,7 +307,7 @@ module.exports = {
   getProject, createProject, updateProject, setProjectStatus, listProjects, projectNameTaken, assignVendor, unassignVendor, deleteProject,
   getRequirement, requirementsFor, createRequirement, deleteRequirement,
   getFile, filesFor, registerFile, attachFiles, filePath,
-  getRfp, isOpen, rfpState, createRfp, rfpsForProject, rfpsForVendor, rfpsForMarket, saveAiSummary,
+  getRfp, isOpen, rfpState, createRfp, extendRfpDeadline, rfpsForProject, rfpsForVendor, rfpsForMarket, saveAiSummary,
   getProposal, proposalsFor, proposalOf, createProposal, awardProposal, rejectProposal,
   getQuestion, questionsFor, createQuestion, answerQuestion,
   dashboardStats, activityFor,

@@ -139,7 +139,7 @@ function rfpForm(ctx, { project, requirements, vendors, values = {}, errors = {}
   <h1>${esc(t('newRfp'))}</h1>${body}`, { active: 'projects' });
 }
 
-function rfpDetail(ctx, { project, rfp, requirements, invited, rows, analysis, minRating, sort, files, message, notice }) {
+function rfpDetail(ctx, { project, rfp, requirements, invited, rows, analysis, minRating, sort, files, message, notice, extendError, extendDays = '7' }) {
   const { t, fmt, flags, store } = ctx;
   const state = store.rfpState(rfp);
   const canDecide = rfp.status !== 'awarded';
@@ -192,8 +192,13 @@ function rfpDetail(ctx, { project, rfp, requirements, invited, rows, analysis, m
   return layout(ctx, rfp.title, `
   <a class="crumb" href="/projects/${project.id}" data-testid="crumb-back">${esc(project.name)}</a>
   <div class="page-head"><div><h1 data-testid="rfp-title">${esc(rfp.title)}</h1>
-    <p class="meta">${badge(state, t(state), 'rfp-status')} ${esc(t('deadline'))}: <span data-testid="rfp-deadline">${esc(fmt.date(rfp.deadline))}</span></p></div></div>
-  ${flash(message)}${notice ? alertBox(notice, 'notice') : ''}
+    <p class="meta">${badge(state, t(state), 'rfp-status')} ${esc(t('deadline'))}: <span data-testid="rfp-deadline" data-date="${esc(rfp.deadline)}">${esc(fmt.date(rfp.deadline))}</span></p>
+    ${ctx.flags.deadlineExtension && state === 'open' ? `<form method="post" action="/rfps/${rfp.id}/extend" class="inline" novalidate data-testid="extend-deadline-form">
+      <label for="extendDays">${esc(t('extendBy'))}</label>
+      <input id="extendDays" name="days" type="number" min="1" max="30" step="1" value="${esc(extendDays)}" data-testid="input-extendDays">
+      <span>${esc(t('days'))}</span>
+      <button class="small secondary" type="submit" data-testid="extend-deadline">${esc(t('extendDeadline'))}</button></form>` : ''}</div></div>
+  ${flash(message)}${notice ? alertBox(notice, 'notice') : ''}${extendError ? alertBox(extendError, 'extend-error') : ''}
   <section class="card table-wrap" data-testid="comparison">
     <div class="section-head"><h2>${esc(t('proposals'))}</h2>
       <div class="inline">
