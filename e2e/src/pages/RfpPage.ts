@@ -12,6 +12,12 @@ export class RfpPage extends BasePage {
   readonly files: Locator;
   readonly questions: Locator;
   readonly notice: Locator;
+  /** Displayed deadline; data-date holds the ISO date (YYYY-MM-DD). */
+  readonly deadline: Locator;
+  /** Shown only for open RFPs when the market's deadlineExtension flag is on. */
+  readonly extendForm: Locator;
+  readonly extendDays: Locator;
+  readonly extendError: Locator;
 
   constructor(page: Page, market: MarketCode, lang?: Lang) {
     super(page, market, lang);
@@ -23,6 +29,15 @@ export class RfpPage extends BasePage {
     this.files = page.getByTestId('file-link');
     this.questions = page.getByTestId('question-text');
     this.notice = page.getByTestId('notice');
+    this.deadline = page.getByTestId('rfp-deadline');
+    this.extendForm = page.getByTestId('extend-deadline-form');
+    this.extendDays = page.getByTestId('input-extendDays');
+    this.extendError = page.getByTestId('extend-error');
+  }
+
+  async extendDeadline(days: number) {
+    await this.extendDays.fill(String(days));
+    await this.page.getByTestId('extend-deadline').click();
   }
 
   async goto(rfpId: string, query = '') {

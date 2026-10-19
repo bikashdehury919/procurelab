@@ -46,7 +46,7 @@ export const LOCATORS = {
   'portal.vendorCompany': {
     description: 'Vendor portal: the signed-in vendor company name, directly under the page title',
     strategies: [
-      { by: 'testid', value: 'vendor-company' },
+      { by: 'testid', value: 'vendor-company-name' },
       { by: 'css', value: '[data-testid*="vendor-company"]' },
       { by: 'css', value: 'h1 + p.meta' },
     ],

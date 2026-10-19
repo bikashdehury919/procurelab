@@ -17,7 +17,7 @@ function portal(ctx, { invitations }) {
     : `<tr><td colspan="5" class="empty" data-testid="invitations-empty">${esc(t('noRfpsVendor'))}</td></tr>`;
   return layout(ctx, t('myRfps'), `
   <h1>${esc(t('myRfps'))}</h1>
-  <p class="meta" data-testid="vendor-company">${esc(ctx.vendor.name)}</p>
+  <p class="meta" data-testid="vendor-company-name">${esc(ctx.vendor.name)}</p>
   <div class="card table-wrap"><table data-testid="invitations-table">
     <thead><tr><th>${esc(t('rfpTitle'))}</th><th>${esc(t('projectLabel'))}</th><th>${esc(t('deadline'))}</th><th>${esc(t('status'))}</th><th></th></tr></thead>
     <tbody>${rows}</tbody></table></div>`, { active: 'myRfps' });
